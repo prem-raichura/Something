@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  googleId     String   @unique
+  email        String   @unique
+  accessToken  String
+  refreshToken String
+  tokenExpiry  DateTime
+  createdAt    DateTime @default(now())
+
+  sheets   Sheet[]
+  pushSubs PushSubscription[]
+}
+
+model Sheet {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  spreadsheetId String
+  range         String    @default("A1:Z1000")
+  label         String
+  pollInterval  Int       @default(180)
+  lastHash      String?
+  lastSnapshot  Json?
+  lastCheckedAt DateTime?
+  notifyEmail   Boolean   @default(true)
+  notifyPush    Boolean   @default(true)
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+
+  changes ChangeLog[]
+
+  @@unique([userId, spreadsheetId])
+}
+
+model ChangeLog {
+  id        String   @id @default(cuid())
+  sheetId   String
+  sheet     Sheet    @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  summary   String
+  details   Json
+  createdAt DateTime @default(now())
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}
