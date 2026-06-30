@@ -1,4 +1,5 @@
 import { Worker, Job } from "bullmq";
+import { Prisma } from "@prisma/client";
 import { connection } from "../shared/redis";
 import prisma from "../shared/prisma";
 import { oauthClientFor } from "../shared/google/oauthClient";
@@ -42,7 +43,7 @@ export function createPollWorker() {
           data: {
             sheetId,
             summary: `${changes.length} cell${changes.length !== 1 ? "s" : ""} changed`,
-            details: changes,
+            details: changes as unknown as Prisma.InputJsonValue,
           },
         });
 
