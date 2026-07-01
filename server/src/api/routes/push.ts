@@ -1,8 +1,29 @@
 import { Router } from "express";
 import prisma from "../../shared/prisma";
 import { requireAuth } from "../middleware/requireAuth";
+import { sendPush } from "../../shared/notify/push";
 
 const router = Router();
+
+router.post("/test", requireAuth, async (req, res) => {
+  const userId = req.session!.userId as string;
+  const subs = await prisma.pushSubscription.findMany({ where: { userId } });
+  if (subs.length === 0) {
+    res.status(400).json({ error: "No push devices. Click “Enable push” first." });
+    return;
+  }
+  const payload = {
+    title: "SheetWatch test",
+    body: "Push notifications are working 🎉",
+    url: "/",
+  };
+  await Promise.all(
+    subs.map((s) =>
+      sendPush({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload)
+    )
+  );
+  res.json({ ok: true, sent: subs.length });
+});
 
 router.post("/subscribe", requireAuth, async (req, res) => {
   const userId = req.session!.userId as string;

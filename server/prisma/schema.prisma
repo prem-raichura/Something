@@ -17,15 +17,38 @@ model User {
   createdAt    DateTime @default(now())
 
   sheets   Sheet[]
+  projects Project[]
   pushSubs PushSubscription[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  color       String   @default("#0FA3A3")
+  sortOrder   Int      @default(0)
+  notifyEmail Boolean  @default(true)
+  notifyPush  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  sheets Sheet[]
+
+  @@index([userId])
 }
 
 model Sheet {
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
   spreadsheetId String
   range         String    @default("A1:Z1000")
+  tab           String?
+  watchMode     String    @default("range")
+  matchColumn   String?
+  matchValue    String?
   label         String
   pollInterval  Int       @default(180)
   lastHash      String?
@@ -33,12 +56,14 @@ model Sheet {
   lastCheckedAt DateTime?
   notifyEmail   Boolean   @default(true)
   notifyPush    Boolean   @default(true)
+  paused        Boolean   @default(false)
   errorMessage  String?
   createdAt     DateTime  @default(now())
 
   changes ChangeLog[]
 
   @@unique([userId, spreadsheetId])
+  @@index([projectId])
 }
 
 model ChangeLog {

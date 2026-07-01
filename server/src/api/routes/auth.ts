@@ -67,7 +67,7 @@ router.get("/google/callback", async (req, res) => {
     });
 
     req.session!.userId = user.id;
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    res.redirect(`${process.env.FRONTEND_URL}/overview`);
   } catch (err) {
     console.error("OAuth callback error:", err);
     res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);

@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { connection } from "../shared/redis";
 import prisma from "../shared/prisma";
 import { oauthClientFor } from "../shared/google/oauthClient";
-import { fetchRange } from "../shared/google/sheets";
+import { fetchScoped } from "../shared/google/sheets";
 import { hashGrid, diffGrid } from "../shared/google/diff";
 import { notifyQueue } from "../shared/queues";
 
@@ -23,10 +23,11 @@ export function createPollWorker() {
       });
 
       if (!sheet) return;
+      if (sheet.paused) return;
 
       try {
         const auth = oauthClientFor(sheet.user);
-        const rows = await fetchRange(sheet.spreadsheetId, sheet.range, auth);
+        const rows = await fetchScoped(sheet, auth);
         const newHash = hashGrid(rows);
 
         await prisma.sheet.update({
