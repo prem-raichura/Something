@@ -18,52 +18,69 @@ export default function SheetDetail() {
   }, [id]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b px-6 py-4 flex items-center gap-4">
-        <Link to="/dashboard" className="text-indigo-600 hover:text-indigo-800 text-sm">
-          ← Dashboard
+    <div className="animate-fade-up space-y-6">
+      <div>
+        <Link
+          to="/tracking"
+          className="font-mono text-xs text-ink-400 transition-colors hover:text-ink-700"
+        >
+          ← tracking
         </Link>
-        <h1 className="text-xl font-semibold text-gray-900">Change History</h1>
-      </header>
+        <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink-900">
+          Change history
+        </h1>
+      </div>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        {loading ? (
-          <p className="text-gray-400 text-sm">Loading…</p>
-        ) : changes.length === 0 ? (
-          <p className="text-gray-400 text-sm">No changes recorded yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {changes.map((c) => (
-              <div key={c.id} className="bg-white rounded-lg border p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-gray-900">{c.summary}</span>
-                  <span className="text-xs text-gray-400">
-                    {new Date(c.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  {c.details.slice(0, 10).map((d, i) => (
-                    <div
-                      key={i}
-                      className="text-sm font-mono bg-gray-50 rounded px-3 py-1 flex gap-2"
-                    >
-                      <span className="text-gray-400 shrink-0">{d.cell}</span>
-                      <span className="text-red-500 line-through">{d.before || "(empty)"}</span>
-                      <span className="text-gray-400">→</span>
-                      <span className="text-green-600">{d.after || "(empty)"}</span>
-                    </div>
-                  ))}
-                  {c.details.length > 10 && (
-                    <p className="text-xs text-gray-400 pl-3">
-                      +{c.details.length - 10} more cells
-                    </p>
-                  )}
-                </div>
+      {loading ? (
+        <p className="font-mono text-sm text-ink-400">loading…</p>
+      ) : changes.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-line bg-surface px-6 py-14 text-center">
+          <p className="text-sm font-medium text-ink-700">No changes recorded</p>
+          <p className="mt-1 text-sm text-ink-400">
+            This sheet hasn’t changed since you started watching it.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {changes.map((c) => (
+            <div
+              key={c.id}
+              className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card"
+            >
+              <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
+                <span className="font-mono text-xs font-medium text-ink-700">
+                  {c.summary}
+                </span>
+                <span className="font-mono text-[11px] text-ink-400">
+                  {new Date(c.createdAt).toLocaleString()}
+                </span>
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+              <div className="divide-y divide-line">
+                {c.details.slice(0, 12).map((d, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 px-4 py-2 font-mono text-xs"
+                  >
+                    <span className="shrink-0 rounded bg-paper px-1.5 py-0.5 text-[10px] text-ink-400">
+                      {d.cell}
+                    </span>
+                    <span className="truncate text-coral-600 line-through">
+                      {d.before || "∅"}
+                    </span>
+                    <span className="text-ink-300">→</span>
+                    <span className="truncate text-teal-600">{d.after || "∅"}</span>
+                  </div>
+                ))}
+                {c.details.length > 12 && (
+                  <p className="px-4 py-2 font-mono text-[11px] text-ink-400">
+                    +{c.details.length - 12} more cells
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

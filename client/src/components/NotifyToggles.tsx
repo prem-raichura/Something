@@ -14,13 +14,12 @@ export default function NotifyToggles({ sheet, onUpdated }: Props) {
 
   const toggle = async (field: "notifyEmail" | "notifyPush", value: boolean) => {
     setSaving(true);
+    if (field === "notifyEmail") setEmail(value);
+    else setPush(value);
     try {
       await api.patch<Sheet>(`/api/sheets/${sheet.id}`, { [field]: value });
-      if (field === "notifyEmail") setEmail(value);
-      else setPush(value);
       onUpdated();
     } catch {
-      // revert optimistic state
       if (field === "notifyEmail") setEmail(!value);
       else setPush(!value);
     } finally {
@@ -28,28 +27,33 @@ export default function NotifyToggles({ sheet, onUpdated }: Props) {
     }
   };
 
+  const chip = (on: boolean) =>
+    `rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all active:scale-95 disabled:opacity-50 ${
+      on
+        ? "bg-[#0FA3A3] text-white shadow-sm"
+        : "text-ink-400 hover:bg-paper hover:text-ink-700"
+    }`;
+
   return (
-    <div className="flex items-center gap-3 text-xs text-gray-600">
-      <label className="flex items-center gap-1 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={email}
-          disabled={saving}
-          onChange={(e) => toggle("notifyEmail", e.target.checked)}
-          className="rounded text-indigo-600 focus:ring-indigo-500"
-        />
+    <div className="flex items-center gap-1 rounded-lg border border-line p-0.5">
+      <button
+        type="button"
+        disabled={saving}
+        aria-pressed={email}
+        onClick={() => toggle("notifyEmail", !email)}
+        className={chip(email)}
+      >
         Email
-      </label>
-      <label className="flex items-center gap-1 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={push}
-          disabled={saving}
-          onChange={(e) => toggle("notifyPush", e.target.checked)}
-          className="rounded text-indigo-600 focus:ring-indigo-500"
-        />
+      </button>
+      <button
+        type="button"
+        disabled={saving}
+        aria-pressed={push}
+        onClick={() => toggle("notifyPush", !push)}
+        className={chip(push)}
+      >
         Push
-      </label>
+      </button>
     </div>
   );
 }

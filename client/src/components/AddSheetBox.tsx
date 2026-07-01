@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "../lib/api";
 import { Sheet } from "../types";
+import Spinner from "./Spinner";
 
 interface Props {
   onAdded: () => void;
@@ -28,25 +29,28 @@ export default function AddSheetBox({ onAdded }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg border p-4">
-      <h2 className="text-sm font-medium text-gray-700 mb-3">Track a new sheet</h2>
-      <div className="flex gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-2xl border border-line bg-surface p-4 shadow-card"
+    >
+      <div className="flex flex-col gap-2 sm:flex-row">
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://docs.google.com/spreadsheets/d/..."
-          className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="https://docs.google.com/spreadsheets/d/…"
+          className="flex-1 rounded-lg border border-line bg-paper px-3 py-2 font-mono text-sm text-ink-900 placeholder:text-ink-300 outline-none transition-shadow focus:border-[#0FA3A3] focus:ring-4 focus:ring-[#0FA3A3]/10"
         />
         <button
           type="submit"
           disabled={loading || !url.trim()}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#141A2A] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#2C3446] hover:shadow-md active:scale-[0.97] disabled:opacity-50 disabled:hover:shadow-sm"
         >
+          {loading && <Spinner />}
           {loading ? "Adding…" : "Track"}
         </button>
       </div>
-      {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+      {error && <p className="mt-2 font-mono text-xs text-coral-600">{error}</p>}
     </form>
   );
 }
